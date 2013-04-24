@@ -1,0 +1,1 @@
+Script en perl para pasar un archivo bat a un sh 
