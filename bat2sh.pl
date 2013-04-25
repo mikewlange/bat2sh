@@ -31,14 +31,20 @@ foreach my $line (@contents) {
 	$line =~ s/^\s*set //i;
 	# \ -> /
 	$line =~ s/\\/\//g;
+	# copy -> cp
+	if ($line =~ m/^\s*copy\b/ig){
+		$line =~ s/^\s*copy\b/cp/ig;
+		$line =~ s/\n//; #remove eol
+		$line .= " ./\n";
+	}
 	# %varName% -> $varName
 	while ($line =~ m/(%\w*%)/ig){
 		my $word = "\$" . substr($1, 1, -1);
 		$line =~ s/(%\w*%)/$word/ig;
 	}
 	# if ERRORLEVEL 1 goto ERROR -> if [ "$?" = "1" ]; then sub_error fi
-	if ($line =~ m/^\s*if\s*ERRORLEVEL\s*1\s*goto\s*\w*\s*$/i){
-		
+	if ($line =~ m/^\s*if\s*ERRORLEVEL\s*1\s*goto\s*(\w*)\s*$/ig){
+		$line = "if [ \"\$?\" = \"1\" ]; then \n	exit 1\nfi\n";
 	}
 }
 my $line = "#!/bin/sh\n\n\n";
